@@ -1,6 +1,6 @@
 function Driver()
 
-    ENV_SIZE = 100;
+    ENV_SIZE = 10;
     
     % Generate sample environment for testing
     function sample_env = gen_sample_env()
@@ -10,6 +10,7 @@ function Driver()
                 sample_env(r,c) = round(rand);
             end
         end
+        sample_env(1,1) = 0;
     end
 
     robot = Robot(gen_sample_env());
