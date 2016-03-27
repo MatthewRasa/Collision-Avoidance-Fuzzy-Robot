@@ -1,3 +1,8 @@
+%
+% Contains the current position and rotation of the robot through the
+% specified environment.  Methods for obtaining vision data and
+% rotating the robot are used to work with the fuzzy logic controller.
+%
 classdef Robot
     properties(Constant)
         
@@ -34,13 +39,32 @@ classdef Robot
             this.m_pos = [1;1;0];
         end
         
-        function r = dist(this, x0, y0, x1, y1)
-            r = sqrt((x1 - x0)^2 + (y1 - y0)^2);
-        end
-        
+        %
+        % Check to see if the coordinates are in the bounds of the
+        % environment.
+        %
+        % Params:
+        %     x - x-coordinate to check
+        %     y - y-coordinate to check
+        % Returns:
+        %     bounded - true if the coordinates are in bound
+        %
         function bounded = in_bounds(this, x, y)
             dim = size(this.m_env);
             bounded = x >= 1 && y >= 1 && x <= dim(1) && y <= dim(2);
+        end
+        
+        %
+        % Rotate the robot's direction by the specified angle.
+        % 
+        % Params:
+        %     theta - angle to rotate robot by
+        % Returns:
+        %     angle - the angle after the rotation, in radians 
+        %
+        function angle = rotate(this, theta)
+            this.m_pos(3) = mod(this.m_pos(3) + theta, Robot.TWO_PI);
+            angle = this.m_pos(3);
         end
         
         %
