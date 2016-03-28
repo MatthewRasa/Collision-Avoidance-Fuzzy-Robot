@@ -10,9 +10,20 @@ function Driver()
     % Initialize the environment, GUI, and robot
     function init()
         javaaddpath('./gui.jar');
-        m_env = gen_sample_env();
+        javaaddpath('./paths.jar');
+        path_obj = com.kevinbohinski.CSC47002.PathGenerator(3, ENV_DIM(2), ENV_DIM(1));
+        use_env(path_obj.getPaths().get(0));
+        
         m_gui = gui.Grid(m_env);
         m_robot = Robot(m_env, m_gui);
+    end
+
+    function use_env(env)
+        for y=1:ENV_DIM(2)
+            for x=1:ENV_DIM(1)
+                m_env(x,y) = env(y,x);
+            end
+        end
     end
 
     % Redraw the grid and move the robot based on the fuzzy logic

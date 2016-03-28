@@ -73,8 +73,8 @@ public class Grid extends JFrame implements Runnable {
 	 * mRunning - true if the GUI is still running
 	 */
 	private BufferedImage mGrid;
-	private double mX, mY, mRotation, mRevX, mRevY;
-	private int[][] mGridData;
+	private Integer[][] mGridData;
+	private double mX, mY, mRotation, mRevX, mRevY;	
 	private int mBlockSize, mReversing;
 	private boolean mRunning;
 
@@ -83,7 +83,7 @@ public class Grid extends JFrame implements Runnable {
 	 *
 	 * @param gridData - grid data to display in GUI
 	 */
-	public Grid(int[][] gridData) {
+	public Grid(Integer[][] gridData) {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setContentPane(new DrawingPanel());
 		setSize(WIDTH, HEIGHT);
