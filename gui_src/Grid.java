@@ -22,8 +22,22 @@ public class Grid extends JFrame implements Runnable {
 	                         COLOR_BLANK = Color.WHITE.getRGB(),
 	                         COLOR_OBS = Color.GRAY.getRGB(),
 	                         REFRESH_RATE = 1000 / 60,
+	                         REVERSE_DELAY = 20,
 	                         SPEED = 1;
 	
+	/**
+	 * Bound a value between the set min and max.
+	 *
+	 * @param min - minimum bound
+	 * @param val - value to bound
+	 * @param max - maximum bound
+	 * @return the value bounded between the min and max
+	 */
+	private static int bound(int min, int val, int max) {
+		return val < min ? min :
+		       val > max ? max : val;
+	}
+
 	/**
 	 * Draw a block at the specified coordinates.
 	 *
@@ -59,8 +73,9 @@ public class Grid extends JFrame implements Runnable {
 	 * mRunning - true if the GUI is still running
 	 */
 	private BufferedImage mGrid;
-	private double mRotation;
-	private int mX, mY, mBlockSize;
+	private double mX, mY, mRotation, mRevX, mRevY;
+	private int[][] mGridData;
+	private int mBlockSize, mReversing;
 	private boolean mRunning;
 
 	/**
@@ -73,10 +88,12 @@ public class Grid extends JFrame implements Runnable {
 		setContentPane(new DrawingPanel());
 		setSize(WIDTH, HEIGHT);
 		
-		mRotation = 0;
-		mX = mY = 0;
-		mRunning = true;
+		// Instantiate members
+		mRotation = mX = mY = mRevX = mRevY = 0;
+		mGridData = gridData;
 		mBlockSize = useLesser(WIDTH / gridData[0].length, HEIGHT / gridData.length);
+		mReversing = 0;
+		mRunning = true;
 
 		// Create grid image
 		mGrid = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
@@ -110,8 +127,9 @@ public class Grid extends JFrame implements Runnable {
 	 */
 	@Override
 	public void run() {
-		while(true) {
+		while(mRunning) {
 			repaint();
+			move();
 			try {
 				Thread.sleep(REFRESH_RATE);
 			} catch (InterruptedException e) {
@@ -128,7 +146,35 @@ public class Grid extends JFrame implements Runnable {
 	 */
 	public int[] updateRotation(double theta) {
 		mRotation = theta;
-		return new int[] {mX, mY};
+		return new int[] {(int) Math.round(mX), (int) Math.round(mY)};
+	}
+
+	/**
+	 * Move the robot through the grid.
+	 */
+	private void move() {
+		// Move in direction of rotation or reverse if recovering from collision
+		double xVel, yVel;
+		if (mReversing > 0) {
+			xVel = mRevX;
+			yVel = mRevY;
+			mReversing--;
+		} else {
+			xVel = SPEED * Math.cos(mRotation);
+			yVel = SPEED * Math.sin(mRotation);
+		}
+
+		// Check collision
+		if (mGridData[bound(0, (int) (mY + yVel) / mBlockSize + 1, mGridData.length)][bound(0, (int) (mX + xVel) / mBlockSize + 1, mGridData[0].length)]== 1) {
+			mReversing = REVERSE_DELAY;
+			mRevX = -xVel;
+			mRevY = -yVel;
+			return;
+		}
+
+		// Move robot
+		mX += xVel;
+		mY += yVel;
 	}
 
 	/**
@@ -144,16 +190,12 @@ public class Grid extends JFrame implements Runnable {
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
-			double xComp = Math.cos(mRotation),
-			       yComp = Math.sin(mRotation),
-			       radius = mBlockSize / 2;
+			double radius = mBlockSize / 2;
 			g.drawImage(mGrid, 0, 0, null);
 			g.setColor(Color.BLUE);
-			g.fillOval(mX, mY, mBlockSize, mBlockSize);
+			g.fillOval((int) Math.round(mX), (int) Math.round(mY), mBlockSize, mBlockSize);
 			g.setColor(Color.BLACK);
-			g.fillOval((int) (mX + radius * (1 + xComp)/2), (int) (mY + radius * (1 + yComp)/2), (int) radius, (int) radius);
-			mX += SPEED * xComp;
-			mY += SPEED * yComp;
+			g.fillOval((int) (mX + radius * (1 + Math.cos(mRotation))/2), (int) (mY + radius * (1 + Math.sin(mRotation))/2), (int) radius, (int) radius);
 		}
 
 	}

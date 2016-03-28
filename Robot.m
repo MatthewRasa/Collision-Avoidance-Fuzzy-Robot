@@ -56,7 +56,7 @@ classdef Robot < handle
             vision_data = this.scan();
 
             % Pass vision data to fuzzy controller
-            fuzzy_output = pi/16;
+            fuzzy_output = 0;
             
             % Use fuzzy output to decide movement
             this.rotate(fuzzy_output);
@@ -90,7 +90,7 @@ classdef Robot < handle
         %     angle - the angle after the rotation, in radians 
         %
         function rotate(this, theta)
-            this.m_pos(3) = mod(this.m_pos(3) + theta, Robot.TWO_PI);
+            this.m_pos(3) = mod(this.m_pos(3) - theta, Robot.TWO_PI);
         end
         
         %

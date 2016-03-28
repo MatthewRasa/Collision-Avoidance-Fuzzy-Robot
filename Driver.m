@@ -26,12 +26,14 @@ function Driver()
     % Generate sample environment for testing
     function sample_env = gen_sample_env()
         sample_env = zeros(ENV_DIM);
-        for r = 1:ENV_DIM(1)
-            for c = 1:ENV_DIM(2)
-                sample_env(r,c) = round(rand);
-            end
+        for i=0:3
+            sample_env(1:ENV_DIM(1), 4 * i + 1:4 * (i + 1) - 1) = 0;
+            sample_env(1:ENV_DIM(1), 4 * (i + 1), 1) = 1;
         end
-        sample_env(1,1) = 0;
+        sample_env(12:16, 4) = 0;
+        sample_env(1:4, 8) = 0;
+        sample_env(12:16, 12) = 0;
+        sample_env(1:4, 16) = 0;
     end
 
     init();
