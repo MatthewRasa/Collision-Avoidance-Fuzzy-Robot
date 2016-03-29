@@ -26,7 +26,7 @@ public class PathGenerator {
 	/* Private vars */
 	private final int wall = 1;
 	private final int path = 0;
-	private List<Integer[][]> paths;
+	private List<int[][]> paths;
 	private int n;
 	private int width;
 	private int height;
@@ -47,7 +47,7 @@ public class PathGenerator {
 		this.n = n;
 		this.width = width;
 		this.height = height;
-		paths = new ArrayList<Integer[][]>();
+		paths = new ArrayList<int[][]>();
 		rng = new Random();
 		for (int i = 0; i < n; i++) {
 			generatePath();
@@ -58,7 +58,7 @@ public class PathGenerator {
 	 * Generates a map with a valid path.
 	 */
 	private void generatePath() {
-		Integer[][] arr = new Integer[width][height];
+		int[][] arr = new int[width][height];
 		int y = 0;
 
 		for (int x = 0; x < width; x++) {
@@ -120,10 +120,10 @@ public class PathGenerator {
 		final String ANSI_RED = "\u001B[31m";
 		final String ANSI_GREEN = "\u001B[32m";
 
-		for (Integer[][] arr : paths) {
+		for (int[][] arr : paths) {
 			System.out.println();
-			for (Integer y = 0; y < height; y++) {
-				for (Integer x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
 					int tmp = arr[x][y];
 					if (tmp == wall) {
 						System.out.print(ANSI_RED + tmp + " ");
@@ -142,8 +142,19 @@ public class PathGenerator {
 	 * 
 	 * @return : List of paths.
 	 */
-	public List<Integer[][]> getPaths() {
+	public List<int[][]> getPaths() {
 		return paths;
+	}
+
+	/**
+	 * Getter function for a map.
+	 * 
+	 * @param id
+	 *            : Index of requested map.
+	 * @return : The map at that index.
+	 */
+	public int[][] getPath(int id) {
+		return paths.get(id);
 	}
 
 	@Override
