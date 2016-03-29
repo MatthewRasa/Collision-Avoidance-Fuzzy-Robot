@@ -182,7 +182,7 @@ public class Grid extends JFrame implements Runnable {
 	 */
 	public int[] updateRotation(double theta) {
 		mRotation = theta;
-		return new int[] {(int) Math.round(mX) + 1, (int) Math.round(mY) + 1};
+		return new int[] {(int) Math.round(mX / mBlockSize) + 1, (int) Math.round(mY / mBlockSize) + 1};
 	}
 
 	/**
