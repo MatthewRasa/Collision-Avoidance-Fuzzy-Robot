@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.util.Stack;
 
 /**
  * JFrame to display the GUI.
@@ -122,6 +123,30 @@ public class Grid extends JFrame implements Runnable {
 		return mRunning;
 	}
 	
+	public int[] reduce(int[] data) {
+		Stack<Integer> stk = new Stack<Integer>();
+
+		for (int i = 0; i < data.length; i++) {
+			stk.push(data[i]);
+		}
+
+		while (stk.size() > 2) {
+			Stack<Integer> tmpStk = new Stack<Integer>();
+			int count = stk.size() / 2;
+			while (count > 0) {
+				tmpStk.push(((stk.pop() + stk.pop()) / 2));
+				count--;
+			}
+			stk = tmpStk;
+		}
+		
+		int[] toReturn = new int[2];
+		toReturn[0] = stk.pop();
+		toReturn[1] = stk.pop();
+		
+		return toReturn;
+	}
+	
 	/**
 	 * Refresh the application at the REFRESH_RATE.
 	 */
@@ -146,7 +171,7 @@ public class Grid extends JFrame implements Runnable {
 	 */
 	public int[] updateRotation(double theta) {
 		mRotation = theta;
-		return new int[] {(int) Math.round(mX), (int) Math.round(mY)};
+		return new int[] {(int) Math.round(mX) + 1, (int) Math.round(mY) + 1};
 	}
 
 	/**

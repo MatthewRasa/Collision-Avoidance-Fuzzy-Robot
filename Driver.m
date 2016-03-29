@@ -13,8 +13,9 @@ function Driver()
         javaaddpath('./paths.jar');
         path_obj = com.kevinbohinski.CSC47002.PathGenerator(3, ENV_DIM(2), ENV_DIM(1));
         m_env = rot90(path_obj.getPath(0));
+        %m_env = gen_sample_env();
         m_gui = gui.Grid(m_env);
-        m_robot = Robot(m_env, m_gui);
+        m_robot = Robot(m_env, m_gui, readfis('FuzzyRobot.fis'));
     end
 
     % Redraw the grid and move the robot based on the fuzzy logic

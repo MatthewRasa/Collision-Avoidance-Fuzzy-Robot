@@ -24,6 +24,7 @@ classdef Robot < handle
         m_env; % Environment
         m_gui; % GUI reference
         m_pos; % Position
+        m_fis; % Fuzzy Inference System
     end
     methods
         
@@ -36,9 +37,10 @@ classdef Robot < handle
         % Returns:
         %     this - a new Robot object
         %
-        function this = Robot(env, gui)
+        function this = Robot(env, gui, fis)
             this.m_env = env;
             this.m_gui = gui;
+            this.m_fis = fis;
             this.m_pos = [1 1 0];
         end
         
@@ -51,12 +53,11 @@ classdef Robot < handle
         %     - Update the robot's position with values retrieved from GUI
         %
         function update(this)
-            
             % Look around, obtain vision data
-            vision_data = this.scan();
+            vision_data = this.reduce(this.scan());
 
             % Pass vision data to fuzzy controller
-            fuzzy_output = 0;
+            fuzzy_output = evalfis(vision_data(1:2), this.m_fis);
             
             % Use fuzzy output to decide movement
             this.rotate(fuzzy_output);
@@ -113,6 +114,18 @@ classdef Robot < handle
                 end
                 theta = theta + Robot.SCAN_INC;
             end
+        end
+        
+        function vision_data = reduce(this, data)
+            vision_data = zeros(size(data));
+            for i=1:size(data)
+                if data(i) == 0
+                    vision_data(i) = 20;
+                else
+                    vision_data(i) = 2 * data(i);
+                end
+            end
+            vision_data = double(this.m_gui.reduce(vision_data));
         end
         
     end
