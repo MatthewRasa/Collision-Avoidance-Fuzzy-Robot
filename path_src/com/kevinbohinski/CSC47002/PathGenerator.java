@@ -35,7 +35,7 @@ public class PathGenerator {
 	/**
 	 * Constructor: Creates a new PathGenerator object from params. Starts path
 	 * generation process.
-	 * 
+	 *
 	 * @param n
 	 *            : How many paths to make.
 	 * @param width
@@ -79,28 +79,63 @@ public class PathGenerator {
 						pathStart = randInt(0, height - pathWidth);
 					}
 				}
+
+				/* For simplicity set everything in this col to a wall. */
+				for (y = 0; y < height; y++) {
+					arr[x][y] = wall;
+				}
+
+				/* Go back a set the paths. */
+				while (pathWidth > 0) {
+					arr[x][pathStart] = path;
+					pathStart++;
+					pathWidth--;
+				}
+			} else {
+				/* For simplicity set the starting row to all path. */
+				for (y = 0; y < height; y++) {
+					arr[x][y] = path;
+				}
 			}
 
-			/* For simplicity set everything in this col to a wall. */
-			for (y = 0; y < height; y++) {
-				arr[x][y] = wall;
-			}
-
-			/* Go back a set the paths. */
-			while (pathWidth > 0) {
-				arr[x][pathStart] = path;
-				pathStart++;
-				pathWidth--;
-			}
 		}
 
 		/* Add this path to the list of paths. */
-		paths.add(arr);
+		paths.add(wrapWalls(arr));
+	}
+
+	/**
+	 * Helper function to wrap array in walls for collision detection.
+	 *
+	 * @param arr
+	 *            : Array to wrap
+	 * @return : Wrapped array
+	 */
+	private int[][] wrapWalls(int[][] arr) {
+		int[][] wrapped = new int[width + 2][height + 2];
+
+		for (int x = 1; x < width + 1; x++) {
+			for (int y = 1; y < height + 1; y++) {
+				wrapped[x][y] = arr[x - 1][y - 1];
+			}
+		}
+
+		for (int x = 0; x < width + 2; x++) {
+			wrapped[x][0] = wall;
+			wrapped[x][height + 1] = wall;
+		}
+
+		for (int y = 0; y < height + 2; y++) {
+			wrapped[0][y] = wall;
+			wrapped[width + 1][y] = wall;
+		}
+
+		return wrapped;
 	}
 
 	/**
 	 * Helper function to return a random integer within bounds.
-	 * 
+	 *
 	 * @param min
 	 *            : Lower bound.
 	 * @param max
@@ -122,8 +157,8 @@ public class PathGenerator {
 
 		for (int[][] arr : paths) {
 			System.out.println();
-			for (int y = 0; y < height; y++) {
-				for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height + 2; y++) {
+				for (int x = 0; x < width + 2; x++) {
 					int tmp = arr[x][y];
 					if (tmp == wall) {
 						System.out.print(ANSI_RED + tmp + " ");
@@ -139,7 +174,7 @@ public class PathGenerator {
 
 	/**
 	 * Getter function for the list of paths.
-	 * 
+	 *
 	 * @return : List of paths.
 	 */
 	public List<int[][]> getPaths() {
@@ -148,7 +183,7 @@ public class PathGenerator {
 
 	/**
 	 * Getter function for a map.
-	 * 
+	 *
 	 * @param id
 	 *            : Index of requested map.
 	 * @return : The map at that index.
