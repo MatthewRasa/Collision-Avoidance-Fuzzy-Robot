@@ -41,7 +41,7 @@ classdef Robot < handle
             this.m_env = env;
             this.m_gui = gui;
             this.m_fis = fis;
-            this.m_pos = [1 1 0];
+            this.m_pos = [0 0 0];
         end
         
         %
@@ -54,7 +54,8 @@ classdef Robot < handle
         %
         function update(this)
             % Look around, obtain vision data
-            vision_data = this.reduce(this.scan());
+            vision_data_raw = this.scan();
+            vision_data = this.format_vdata(vision_data_raw);
 
             % Pass vision data to fuzzy controller
             fuzzy_output = evalfis(vision_data(1:2), this.m_fis);
@@ -64,6 +65,7 @@ classdef Robot < handle
             
             % Update rotation on GUI
             % GUI returns current position values of robot
+            this.m_gui.updateVisionData(vision_data_raw);
             this.m_pos(1:2) = this.m_gui.updateRotation(this.m_pos(3));
         end
         
@@ -91,7 +93,7 @@ classdef Robot < handle
         %     angle - the angle after the rotation, in radians 
         %
         function rotate(this, theta)
-            this.m_pos(3) = mod(this.m_pos(3) - theta, Robot.TWO_PI);
+            this.m_pos(3) = mod(this.m_pos(3) + theta, Robot.TWO_PI);
         end
         
         %
@@ -114,15 +116,26 @@ classdef Robot < handle
                 end
                 theta = theta + Robot.SCAN_INC;
             end
+            %transpose(vision_data)
         end
         
-        function vision_data = reduce(this, data)
-            vision_data = zeros(size(data));
-            for i=1:size(data)
-                if data(i) == 0
-                    vision_data(i) = 20;
+        %
+        % Format the vision data so that far away values appear as
+        % SCAN_RADIUS, then reduce the array to 2.
+        % This is called prior to fuzzification.
+        %
+        % Params:
+        %     vdata - vision data to format
+        % Returns:
+        %     the formatted vision data
+        %
+        function vision_data = format_vdata(this, vdata)
+            vision_data = zeros(size(vdata));
+            for i=1:size(vdata)
+                if vdata(i) == 0
+                    vision_data(i) = Robot.SCAN_RADIUS;
                 else
-                    vision_data(i) = 2 * data(i);
+                    vision_data(i) = vdata(i);
                 end
             end
             vision_data = double(this.m_gui.reduce(vision_data));

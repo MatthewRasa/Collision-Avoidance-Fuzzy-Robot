@@ -18,12 +18,12 @@ public class Grid extends JFrame implements Runnable {
 	 * COLOR_OBS - RGB component of obstruction
 	 * REFRESH_RATE - Rate to refresh the GUI
 	 */
-	private static final int WIDTH = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
-	                         HEIGHT = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight(),
+	private static final int SCREEN_WIDTH = (int) Toolkit.getDefaultToolkit().getScreenSize().getWidth(),
+	                         SCREEN_HEIGHT = (int) Toolkit.getDefaultToolkit().getScreenSize().getHeight(),
 	                         COLOR_BLANK = Color.WHITE.getRGB(),
 	                         COLOR_OBS = Color.GRAY.getRGB(),
 	                         REFRESH_RATE = 1000 / 60,
-	                         REVERSE_DELAY = 20,
+	                         REVERSE_DELAY = 50,
 	                         SPEED = 1;
 	
 	/**
@@ -51,11 +51,10 @@ public class Grid extends JFrame implements Runnable {
 	private static void drawBlock(BufferedImage img, int x, int y, int size, int rgb) {
 		x *= size;
 		y *= size;
-		for (int xi = 0; xi < size; xi++) {
-			for (int yi = 0; yi < size; yi++)
+		for (int yi = 0; yi < size; yi++) {
+			for (int xi = 0; xi < size; xi++)
 				img.setRGB(x + xi, y + yi, rgb);
 		}
-
 	}
 
 	/**
@@ -73,34 +72,39 @@ public class Grid extends JFrame implements Runnable {
 	 * mBlockSize - size of grid blocks, calculated at runtime
 	 * mRunning - true if the GUI is still running
 	 */
-	private BufferedImage mGrid;	
-	private double mX, mY, mRotation, mRevX, mRevY;	
+	private BufferedImage mGrid;
+	private String mVisionData, mVisionDataReduced;
+	private double mX, mY, mRadius, mRotation, mRevX, mRevY;	
 	private int[][] mGridData;
 	private int mBlockSize, mReversing;
-	private boolean mRunning;
+	private boolean mDebug, mRunning;
 
 	/**
 	 * Create a new Grid with the specified grid data.
 	 *
 	 * @param gridData - grid data to display in GUI
 	 */
-	public Grid(int[][] gridData) {
+	public Grid(int[][] gridData, boolean debug) {
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setContentPane(new DrawingPanel());
-		setSize(WIDTH, HEIGHT);
-		
+		setSize(SCREEN_WIDTH, SCREEN_HEIGHT);	
+
 		// Instantiate members
-		mRotation = mX = mY = mRevX = mRevY = 0;
 		mGridData = gridData;
-		mBlockSize = useLesser(WIDTH / gridData[0].length, HEIGHT / gridData.length);
+		mVisionData = mVisionDataReduced = "";
+		mBlockSize = useLesser(SCREEN_WIDTH / gridData[0].length, SCREEN_HEIGHT / gridData.length);
+		mX = mY = mBlockSize;
+		mRadius = mBlockSize / 2;
+		mRotation = mRevX = mRevY = 0;	
 		mReversing = 0;
+		mDebug = debug;
 		mRunning = true;
 
 		// Create grid image
-		mGrid = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
-		for (int x = 0; x < gridData[0].length; x++) {
-			for (int y = 0; y < gridData.length; y++)
-				drawBlock(mGrid, x, y, mBlockSize, gridData[y][x] == 0 ? COLOR_BLANK : COLOR_OBS);
+		mGrid = new BufferedImage(SCREEN_WIDTH, SCREEN_HEIGHT, BufferedImage.TYPE_INT_ARGB);
+		for (int row = 0; row < gridData.length; row++) {
+			for (int col = 0; col < gridData[0].length; col++)
+				drawBlock(mGrid, col, row, mBlockSize, gridData[row][col] == 0 ? COLOR_BLANK : COLOR_OBS);
 		}
 
 		// Add listener for JFrame close	
@@ -123,12 +127,18 @@ public class Grid extends JFrame implements Runnable {
 		return mRunning;
 	}
 	
+	/**
+	 * Reduce an array by averaging its subarrays of size 2, then working
+	 * upwards with larger subarrays.
+	 *
+	 * @param data - array to reduce
+	 * @return the reduce array of size 2
+	 */
 	public int[] reduce(int[] data) {
 		Stack<Integer> stk = new Stack<Integer>();
 
-		for (int i = 0; i < data.length; i++) {
+		for (int i = 0; i < data.length; i++)
 			stk.push(data[i]);
-		}
 
 		while (stk.size() > 2) {
 			Stack<Integer> tmpStk = new Stack<Integer>();
@@ -141,9 +151,10 @@ public class Grid extends JFrame implements Runnable {
 		}
 		
 		int[] toReturn = new int[2];
-		toReturn[0] = stk.pop();
-		toReturn[1] = stk.pop();
-		
+		mVisionDataReduced = "[ ";
+		mVisionDataReduced += (toReturn[0] = stk.pop()) + " ";
+		mVisionDataReduced += (toReturn[1] = stk.pop()) + " ";
+		mVisionDataReduced += "]";
 		return toReturn;
 	}
 	
@@ -152,7 +163,7 @@ public class Grid extends JFrame implements Runnable {
 	 */
 	@Override
 	public void run() {
-		while(mRunning) {
+		while(mRunning) {	
 			repaint();
 			move();
 			try {
@@ -175,11 +186,24 @@ public class Grid extends JFrame implements Runnable {
 	}
 
 	/**
+	 * Update the raw vision data; used for debugging.
+	 *
+	 * @param data - vision data collected by robot
+	 */
+	public void updateVisionData(int[] data) {
+		mVisionData = "[ ";
+		for (int i : data)
+			mVisionData += i + " ";
+		mVisionData += "]";
+	}
+
+	/**
 	 * Move the robot through the grid.
+	 * If collision is detected, move backwards for a short time.
 	 */
 	private void move() {
 		// Move in direction of rotation or reverse if recovering from collision
-		double xVel, yVel;
+		double xVel, yVel, cX = mX + mRadius, cY = mY + mRadius;
 		if (mReversing > 0) {
 			xVel = mRevX;
 			yVel = mRevY;
@@ -190,7 +214,9 @@ public class Grid extends JFrame implements Runnable {
 		}
 
 		// Check collision
-		if (mGridData[bound(0, (int) (mY + yVel) / mBlockSize + 1, mGridData.length)][bound(0, (int) (mX + xVel) / mBlockSize + 1, mGridData[0].length)]== 1) {
+		int row = yVel > 0 ? (int) (mY + yVel) / mBlockSize + 1: (int) (mY + yVel) / mBlockSize,
+		    col = xVel > 0 ? (int) (mX + xVel) / mBlockSize + 1: (int) (mX + xVel) / mBlockSize;
+		if (mGridData[row][col] == 1) {
 			mReversing = REVERSE_DELAY;
 			mRevX = -xVel;
 			mRevY = -yVel;
@@ -215,12 +241,15 @@ public class Grid extends JFrame implements Runnable {
 		@Override
 		public void paintComponent(Graphics g) {
 			super.paintComponent(g);
-			double radius = mBlockSize / 2;
 			g.drawImage(mGrid, 0, 0, null);
 			g.setColor(Color.BLUE);
 			g.fillOval((int) Math.round(mX), (int) Math.round(mY), mBlockSize, mBlockSize);
 			g.setColor(Color.BLACK);
-			g.fillOval((int) (mX + radius * (1 + Math.cos(mRotation))/2), (int) (mY + radius * (1 + Math.sin(mRotation))/2), (int) radius, (int) radius);
+			g.fillOval((int) (mX + mRadius * (1 + Math.cos(mRotation))/2), (int) (mY + mRadius * (1 + Math.sin(mRotation))/2), (int) mRadius, (int) mRadius);
+			if (mDebug) {
+				g.drawString(mVisionData, 25, 25);
+				g.drawString(mVisionDataReduced, 100, 50);
+			}
 		}
 
 	}

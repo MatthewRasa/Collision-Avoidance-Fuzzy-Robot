@@ -1,8 +1,19 @@
 #!/bin/bash
-javac -source 1.7 -target 1.7 -d . gui_src/*.java
-jar -cf gui.jar gui/*.class
-rm -rf gui
+src_dir="jsrc"
+bin_dir="jbin"
+jar_dir="jars"
 
-javac -source 1.7 -target 1.7 -d . path_src/com/kevinbohinski/CSC47002/PathGenerator.java
-jar -cf paths.jar com/kevinbohinski/CSC47002/*.class
-rm -rf com
+if [ "$1" == "clean" ]; then
+	rm -rf "$bin_dir" "$jar_dir"
+	exit
+fi
+
+mkdir -p "$jar_dir"
+for target in "$src_dir"/*; do
+	tname=$(basename "$target")
+	mkdir -p "$bin_dir/$tname"
+	javac -source 1.7 -target 1.7 -d "$bin_dir/$tname" "$target"/*.java
+	jar -cf "$tname".jar -C "$bin_dir/$tname" "."
+done
+mv *.jar "$jar_dir"
+rm -rf "$bin_dir"
