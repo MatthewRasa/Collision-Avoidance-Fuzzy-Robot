@@ -25,11 +25,11 @@ MF5='very_far':'trimf',[7.00888192267503 9.50888192267503 12.008881922675]
 Name='R2'
 Range=[0 10]
 NumMFs=5
-MF1='very_close':'trimf',[-2.5 -2.775e-17 2.5]
+MF1='very_close':'trimf',[-2.5 -2.78e-17 1]
 MF2='close':'trimf',[0 2.5 5]
 MF3='medium':'trimf',[2.5 5 7.5]
 MF4='far':'trimf',[5 7.5 10]
-MF5='very_far':'trimf',[7.5 10 12.5]
+MF5='very_far':'trimf',[7.009 9.509 12.01]
 
 [Output1]
 Name='Rotation'

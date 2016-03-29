@@ -31,11 +31,12 @@ public class PathGenerator {
 	private int width;
 	private int height;
 	private Random rng;
+	private int easienessFactor;
 
 	/**
 	 * Constructor: Creates a new PathGenerator object from params. Starts path
 	 * generation process.
-	 *
+	 * 
 	 * @param n
 	 *            : How many paths to make.
 	 * @param width
@@ -44,6 +45,32 @@ public class PathGenerator {
 	 *            : How tall the map should be.
 	 */
 	public PathGenerator(int n, int width, int height) {
+		easienessFactor = 7;
+		setup(n, width, height);
+	}
+
+	/**
+	 * Constructor: Creates a new PathGenerator object from params. Starts path
+	 * generation process.
+	 * 
+	 * @param n
+	 *            : How many paths to make.
+	 * @param width
+	 *            : How wide the map should be.
+	 * @param height
+	 *            : How tall the map should be.
+	 * @param easienessFactor
+	 *            : How easy the map should be to traverse.
+	 */
+	public PathGenerator(int n, int width, int height, int easienessFactor) {
+		this.easienessFactor = easienessFactor;
+		setup(n, width, height);
+	}
+
+	/**
+	 * Simplifies constructors.
+	 */
+	private void setup(int n, int width, int height) {
 		this.n = n;
 		this.width = width;
 		this.height = height;
@@ -62,17 +89,31 @@ public class PathGenerator {
 		int y = 0;
 
 		for (int x = 0; x < width; x++) {
-			int pathWidth = randInt(1, height);
+			int pathWidth = (int) Math.max((randInt(1, height) + randInt(1, height)) / 2, (easienessFactor * .75));
 			int pathStart = randInt(0, height - pathWidth);
 
 			/* Make sure there is a valid path. */
-			if (x != 0) {
+			if (x > 1) {
 				boolean check = false;
 				while (!check) {
 					for (int i = pathStart; i < pathStart + pathWidth; i++) {
-						if (arr[x - 1][i] == path) {
-							check = true;
-							break;
+						try {
+							int count = 0;
+							for (int j = 0; j <= easienessFactor / 2; j++) {
+								if (arr[x - 2][i + j] == path) {
+									count++;
+								}
+								if (arr[x - 2][i - j] == path) {
+									count++;
+								}
+							}
+							if ((arr[x - 1][i] == path && arr[x - 1][i + 1] == path && arr[x - 1][i - 1] == path)
+									&& (count >= (easienessFactor / 2) + 1)) {
+								check = true;
+								break;
+							}
+						} catch (ArrayIndexOutOfBoundsException e) {
+							continue;
 						}
 					}
 					if (!check) {
@@ -106,7 +147,7 @@ public class PathGenerator {
 
 	/**
 	 * Helper function to wrap array in walls for collision detection.
-	 *
+	 * 
 	 * @param arr
 	 *            : Array to wrap
 	 * @return : Wrapped array
@@ -135,7 +176,7 @@ public class PathGenerator {
 
 	/**
 	 * Helper function to return a random integer within bounds.
-	 *
+	 * 
 	 * @param min
 	 *            : Lower bound.
 	 * @param max
@@ -174,7 +215,7 @@ public class PathGenerator {
 
 	/**
 	 * Getter function for the list of paths.
-	 *
+	 * 
 	 * @return : List of paths.
 	 */
 	public List<int[][]> getPaths() {
@@ -183,7 +224,7 @@ public class PathGenerator {
 
 	/**
 	 * Getter function for a map.
-	 *
+	 * 
 	 * @param id
 	 *            : Index of requested map.
 	 * @return : The map at that index.
