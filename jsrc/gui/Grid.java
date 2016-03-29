@@ -23,7 +23,7 @@ public class Grid extends JFrame implements Runnable {
 	                         COLOR_BLANK = Color.WHITE.getRGB(),
 	                         COLOR_OBS = Color.GRAY.getRGB(),
 	                         REFRESH_RATE = 1000 / 60,
-	                         REVERSE_DELAY = 50,
+	                         REVERSE_DELAY = 5,
 	                         SPEED = 1;
 	
 	/**
@@ -93,7 +93,8 @@ public class Grid extends JFrame implements Runnable {
 		mGridData = gridData;
 		mVisionData = mVisionDataReduced = "";
 		mBlockSize = useLesser(SCREEN_WIDTH / gridData[0].length, SCREEN_HEIGHT / gridData.length);
-		mX = mY = mBlockSize;
+		mX = mBlockSize;
+		mY = (gridData.length / 2) * mBlockSize;
 		mRadius = mBlockSize / 2;
 		mRotation = mRevX = mRevY = 0;	
 		mReversing = 0;
@@ -203,7 +204,7 @@ public class Grid extends JFrame implements Runnable {
 	 */
 	private void move() {
 		// Move in direction of rotation or reverse if recovering from collision
-		double xVel, yVel, cX = mX + mRadius, cY = mY + mRadius;
+		double xVel, yVel, cX = mX + mRadius, cY = mY + mRadius, collideBuffer = 4;
 		if (mReversing > 0) {
 			xVel = mRevX;
 			yVel = mRevY;
@@ -211,16 +212,16 @@ public class Grid extends JFrame implements Runnable {
 		} else {
 			xVel = SPEED * Math.cos(mRotation);
 			yVel = SPEED * Math.sin(mRotation);
-		}
 
-		// Check collision
-		int row = yVel > 0 ? (int) (mY + yVel) / mBlockSize + 1: (int) (mY + yVel) / mBlockSize,
-		    col = xVel > 0 ? (int) (mX + xVel) / mBlockSize + 1: (int) (mX + xVel) / mBlockSize;
-		if (mGridData[row][col] == 1) {
-			mReversing = REVERSE_DELAY;
-			mRevX = -xVel;
-			mRevY = -yVel;
-			return;
+			// Check collision
+			int row = yVel > 0 ? (int) (mY + yVel - collideBuffer) / mBlockSize + 1: (int) (mY + yVel + collideBuffer) / mBlockSize,
+			    col = xVel > 0 ? (int) (mX + xVel - collideBuffer) / mBlockSize + 1: (int) (mX + xVel + collideBuffer) / mBlockSize;
+			if (mGridData[row][col] == 1) {
+				mReversing = REVERSE_DELAY;
+				mRevX = -xVel;
+				mRevY = -yVel;
+				return;
+			}
 		}
 
 		// Move robot

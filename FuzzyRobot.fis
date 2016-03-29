@@ -15,11 +15,11 @@ DefuzzMethod='centroid'
 Name='R1'
 Range=[0 10]
 NumMFs=5
-MF1='very_close':'trimf',[-2.5 -2.775e-17 2.5]
+MF1='very_close':'trimf',[-2.5 -2.78e-17 1]
 MF2='close':'trimf',[0 2.5 5]
 MF3='medium':'trimf',[2.5 5 7.5]
 MF4='far':'trimf',[5 7.5 10]
-MF5='very_far':'trimf',[7.5 10 12.5]
+MF5='very_far':'trimf',[7.00888192267503 9.50888192267503 12.008881922675]
 
 [Input2]
 Name='R2'
@@ -33,20 +33,20 @@ MF5='very_far':'trimf',[7.5 10 12.5]
 
 [Output1]
 Name='Rotation'
-Range=[-3.14159265358979 3.14159265358979]
+Range=[-0.392699081698724 0.392699081698724]
 NumMFs=3
-MF1='left':'trimf',[-6.283 -3.142 0]
-MF2='forward':'trimf',[-3.142 2.776e-17 3.142]
-MF3='right':'trimf',[0 3.142 6.283]
+MF1='left':'trimf',[-0.7854 -0.3928 0]
+MF2='forward':'trimf',[-0.3928 0 0.3928]
+MF3='right':'trimf',[0 0.3928 0.7854]
 
 [Rules]
-1 1, 2 (1) : 1
+1 1, 3 (1) : 1
 1 2, 3 (1) : 1
 1 3, 3 (1) : 1
 1 4, 3 (1) : 1
 1 5, 3 (1) : 1
 2 1, 1 (1) : 1
-2 2, 2 (1) : 1
+2 2, 3 (1) : 1
 2 3, 3 (1) : 1
 2 4, 3 (1) : 1
 2 5, 3 (1) : 1
