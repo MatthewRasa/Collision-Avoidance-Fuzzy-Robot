@@ -35,7 +35,7 @@ public class PathGenerator {
 	/**
 	 * Constructor: Creates a new PathGenerator object from params. Starts path
 	 * generation process.
-	 * 
+	 *
 	 * @param n
 	 *            : How many paths to make.
 	 * @param width
@@ -62,7 +62,7 @@ public class PathGenerator {
 		int y = 0;
 
 		for (int x = 0; x < width; x++) {
-			int pathWidth = randInt(1, height - 2);
+			int pathWidth = randInt(1, height);
 			int pathStart = randInt(0, height - pathWidth);
 
 			/* Make sure there is a valid path. */
@@ -106,7 +106,7 @@ public class PathGenerator {
 
 	/**
 	 * Helper function to wrap array in walls for collision detection.
-	 * 
+	 *
 	 * @param arr
 	 *            : Array to wrap
 	 * @return : Wrapped array
@@ -135,7 +135,7 @@ public class PathGenerator {
 
 	/**
 	 * Helper function to return a random integer within bounds.
-	 * 
+	 *
 	 * @param min
 	 *            : Lower bound.
 	 * @param max
@@ -174,7 +174,7 @@ public class PathGenerator {
 
 	/**
 	 * Getter function for the list of paths.
-	 * 
+	 *
 	 * @return : List of paths.
 	 */
 	public List<int[][]> getPaths() {
@@ -183,7 +183,7 @@ public class PathGenerator {
 
 	/**
 	 * Getter function for a map.
-	 * 
+	 *
 	 * @param id
 	 *            : Index of requested map.
 	 * @return : The map at that index.
