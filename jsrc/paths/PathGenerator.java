@@ -168,7 +168,7 @@ public class PathGenerator {
 
 		for (int y = 0; y < height + 2; y++) {
 			wrapped[0][y] = wall;
-			wrapped[width + 1][y] = wall;
+			wrapped[width + 1][y] = path;
 		}
 
 		return wrapped;

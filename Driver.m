@@ -12,7 +12,7 @@ function Driver()
     function init()
         javaaddpath('./jars/gui.jar');
         javaaddpath('./jars/paths.jar');
-        path_obj = com.kevinbohinski.CSC47002.PathGenerator(3, ENV_DIM(2), ENV_DIM(1));
+        path_obj = com.kevinbohinski.CSC47002.PathGenerator(3, ENV_DIM(2), ENV_DIM(1), 9);
         m_env = rot90(path_obj.getPath(0));
         %m_env = gen_sample_env();
         m_gui = gui.Grid(m_env, DEBUG);

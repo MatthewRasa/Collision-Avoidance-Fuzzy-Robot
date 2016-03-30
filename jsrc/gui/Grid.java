@@ -216,7 +216,7 @@ public class Grid extends JFrame implements Runnable {
 			// Check collision
 			int row = yVel > 0 ? (int) (mY + yVel - collideBuffer) / mBlockSize + 1: (int) (mY + yVel + collideBuffer) / mBlockSize,
 			    col = xVel > 0 ? (int) (mX + xVel - collideBuffer) / mBlockSize + 1: (int) (mX + xVel + collideBuffer) / mBlockSize;
-			if (col == mGridData[0].length - 2)
+			if (col == mGridData[0].length - 4)
 				dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 			if (mGridData[row][col] == 1) {
 				mReversing = REVERSE_DELAY;
